@@ -60,7 +60,7 @@ router.post("/add/song",passport.authenticate("jwt",{session:false}), async(req,
         return res.status(400).json({err:"Not allowed"});
 
     }
-    const song=await Song.findOne({_id:songId});
+    const song=await Song.findOne({_id:songId}); 
     if(!song){
         return res.status(304).json({err:"Song does not exist"});
     }
