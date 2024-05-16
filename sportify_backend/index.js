@@ -7,11 +7,13 @@ const passport = require("passport");
 const authRoutes = require("./routes/auth");
 const songRoutes = require("./routes/song");
 const playlistRoutes = require("./routes/playlist");
+const cors=require("cors");
 
 const User = require("./models/user");
 const app = express();
 
 const PORT = 8000;
+app.use(cors())
 app.use(express.json());
 
 // Connect to MongoDB
@@ -24,18 +26,23 @@ const opts = {
     secretOrKey: 'secret'
 };
 
-passport.use(new JwtStrategy(opts, async (jwt_payload, done) => {
-    try {
-        const user = await User.findOne({ id: jwt_payload.sub });
-        if (user) {
-            return done(null, user);
-        } else {
-            return done(null, false);
+passport.use(
+    new JwtStrategy(opts, async function (jwt_payload, done) {
+        try {
+            const user = await User.findOne({ token: jwt_payload.identifier });
+            if (user) {
+                return done(null, user);
+            } else {
+                return done(null, false);
+                // or you could create a new account
+            }
+        } catch (error) {
+            return done(error, false);
         }
-    } catch (error) {
-        return done(error, false);
-    }
-}));
+    })
+);
+
+
 
 app.use("/auth", authRoutes);
 app.use("/song", songRoutes);

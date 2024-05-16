@@ -22,13 +22,11 @@ router.post("/create", passport.authenticate("jwt", { session: false }), async (
 });
 
 router.get("/get/mysongs", passport.authenticate("jwt", { session: false }), async (req, res) => {
-    try {
-        const songs = await Song.find({ artist: req.user._id }).lean();
-        return res.status(200).json({ data: songs });
-    } catch (error) {
-        console.error("Error fetching songs:", error);
-        return res.status(500).json({ error: "Internal Server Error" });
-    }
+    
+    const songs = await Song.find({artist: req.user._id}).populate(
+        "artist"
+    );
+    return res.status(200).json({data: songs});
 });
 
 
@@ -52,7 +50,7 @@ router.get("/get/songname/:songName", passport.authenticate("jwt", { session: fa
     try {
         const {songName}=req.params;  
         //Pattern matching instead of direct name matching     
-        const songs = await Song.find({ name: songName }).lean();
+        const songs = await Song.find({ name: songName }).populate("artist");
         return res.status(200).json({ data: songs });
     } catch (error) {
         console.error("Error fetching songs:", error);

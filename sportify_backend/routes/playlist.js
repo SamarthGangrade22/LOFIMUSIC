@@ -34,6 +34,14 @@ router.get("/get/playlists/:playlistId",passport.authenticate("jwt", { session: 
     return res.status(200).json(playlist);
 });
 
+router.get("/get/me",passport.authenticate("jwt",{session:false}),async(req,res)=>{
+    const artistId=req.params.artistId;
+
+    
+    const playlists=await Playlist.find({owner:artistId});
+    return res.status(200).json({data:playlists})
+});
+
 router.get("/get/artist/:artistId",passport.authenticate("jwt",{session:false}),async(req,res)=>{
     const artistId=req.params.artistId;
 
@@ -42,7 +50,7 @@ router.get("/get/artist/:artistId",passport.authenticate("jwt",{session:false}),
     if(!artist){
         return res.status(304).json({err:"Invalid Artist Id"});
     }
-    const playlists=await Playlist.findOne({owner:artistId});
+    const playlists=await Playlist.find({owner:artistId}).populate("artist");
     return res.status(200).json({data:playlists})
 });
 
